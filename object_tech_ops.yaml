@@ -43,6 +43,7 @@ input_groups:
       - offline_mode
       - offline_binary_secret
       - registry_secret
+      - registry_url
       - upload_package
       - upload_binary_secret
       - hide_log_output

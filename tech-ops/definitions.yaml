@@ -13,7 +13,7 @@ dsl_definitions:
     - >-
       sudo -E bash -c '
       CMD="./install-seaweedfs $RUN_ARG";
-      if [ -n "$REG_URL" ]; then CMD="$CMD -registry $REG_URL $REG_USER $REG_PASS"; fi;
+      if [ -n "$REG_URL" ] && [ "$REG_URL" != "None" ]; then CMD="$CMD -registry $REG_URL $REG_USER $REG_PASS"; fi;
       $CMD'
   run_uninstall_cmds: &run_uninstall_cmds
     - "sudo -E ./install-seaweedfs uninstall"
@@ -31,7 +31,7 @@ dsl_definitions:
     RUN_ARG: { get_input: run_arg }
     REG_URL: { get_input: registry_url }
     REG_USER: { get_input: registry_access_user }
-    REG_PASS: { get_secret: { get_input: registry_access_token } }
+    REG_PASS: { get_input: registry_password }
 
   command_fabric_env: &command_fabric_env
     shell_env:

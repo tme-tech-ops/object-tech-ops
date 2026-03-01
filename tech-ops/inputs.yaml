@@ -196,14 +196,13 @@ inputs:
     hidden: false
     required: false
     allow_update: true
-    display_label: Registry Configuration Secret
+    display_label: Registry Authentication Secret
     description: |
-      Binary configuration secret containing the URL, username, and access token
-      of a local container registry. Required when using 'install push' or 'push'
-      run tasks to push images to a local registry, or when installing from a
-      local registry in offline mode.
+      Secret containing the username and password for a local container registry.
+      Required when using 'install push' or 'push' run tasks to push images to
+      a local registry, or when installing from a local registry in offline mode.
     constraints:
-    - type: binary_configuration
+    - type: basic_auth_credentials
     display:
       group: env_config
       index: 7
@@ -386,15 +385,16 @@ inputs:
 
   registry_url:
     type: string
-    hidden: true
-    allow_update: false
+    hidden: false
+    required: false
+    allow_update: true
     display_label: Registry URL
     description: |
-      URL of the local container registry derived from registry_secret.
-    default:
-      get_secret:
-      - get_input: registry_secret
-      - binary_image_url
+      URL of the local container registry (e.g. myregistry.lab:5000)
+    default: ""
+    display:
+      group: env_config
+      index: 8
 
   registry_access_user:
     type: string
@@ -405,14 +405,15 @@ inputs:
     default:
       get_secret:
       - get_input: registry_secret
-      - binary_image_access_user
+      - username
 
-  registry_access_token:
-    type: list
+  registry_password:
+    type: string
     hidden: true
-    display_label: Registry Access Token
+    display_label: Registry Password
     description: |
-      Access token for the local container registry derived from registry_secret.
+      Password for the local container registry derived from registry_secret.
     default:
-    - get_input: registry_secret
-    - binary_image_access_token
+      get_secret:
+      - get_input: registry_secret
+      - password
