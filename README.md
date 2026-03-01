@@ -1,6 +1,8 @@
 # object-tech-ops
 
-Object storage and monitoring stack for edge-cloud-init based VM deployments.
+Blueprint for deploying object storage and monitoring stack for **edge-cloud-init** based VM deployments.  
+  
+This blueprint is designed for **NativeEdge Endpoints** on **Dell Automation Platform**
 
 ## Overview
 
