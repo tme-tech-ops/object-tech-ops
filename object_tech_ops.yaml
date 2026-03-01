@@ -22,30 +22,40 @@ input_groups:
     collapsible: true
     index: 1
     inputs:
-      - swfs_user
-      - swfs_password
       - host_fqdn
-      - enable_monitoring
-      - enable_smb
-      - enable_nfs
-      - enable_mq
-      - s3_bucket
-      - cluster_name
-      - debug
       - swfs_image
       - caddy_image
+      - swfs_user
+      - swfs_password
       - swfs_admin_fqdn
-      - swfs_master_fqdn
-      - swfs_filer_fqdn
-      - swfs_s3_fqdn
       - swfs_admin_port
+      - swfs_master_fqdn
       - swfs_master_port
-      - swfs_filer_port
-      - swfs_s3_port
+      - enable_mq
       - mq_broker_port
+
+  object_storage_config:
+    display_label: Object StorageConfiguration
+    collapsible: true
+    index: 2
+    inputs:
+      - swfs_filer_fqdn
+      - swfs_filer_port
       - default_filer_dir_name
       - artifacts_to_download
+      - swfs_s3_fqdn
+      - swfs_s3_port
       - s3_user
+      - s3_bucket
+      - enable_smb
+      - enable_nfs
+
+  monitoring_config:
+    display_label: Monitoring Configuration
+    collapsible: true
+    index: 3
+    inputs:
+      - enable_monitoring
       - loki_image
       - grafana_image
       - prometheus_ext_image
@@ -54,11 +64,12 @@ input_groups:
       - loki_port
       - prometheus_ext_port
       - loki_bucket
+      - cluster_name
 
   env_config:
     display_label: Environment Configuration
     collapsible: true
-    index: 2
+    index: 4
     inputs:
       - run_arg
       - script_url
@@ -69,6 +80,7 @@ input_groups:
       - upload_package
       - upload_binary_secret
       - hide_log_output
+      - debug
 
 labels:
   csys-obj-type:
