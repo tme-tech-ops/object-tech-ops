@@ -35,3 +35,12 @@ else
     chmod +x ~/$(basename $SCRIPT_URL)
     ctx logger info "Install script downloaded and made executable."
 fi
+
+# Assemble run_install.sh with the appropriate command and optional registry flags
+ctx logger info "Assembling install command for run_arg: ${RUN_ARG}"
+INSTALL_CMD="${RUN_ARG}"
+if [[ -n "$REG_URL" && "$REG_URL" != "None" ]]; then
+    INSTALL_CMD="${INSTALL_CMD} -registry ${REG_URL} ${REG_USER} ${REG_PASS}"
+fi
+ctx logger info "parsed install command: ${INSTALL_CMD}"
+ctx instance runtime-properties capabilities.install_cmd "$INSTALL_CMD"
