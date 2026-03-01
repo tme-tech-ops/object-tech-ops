@@ -1,0 +1,418 @@
+inputs:
+
+# Deployment Target Inputs
+  vm_deployment_id:
+    type: deployment_id
+    hidden: false
+    allow_update: false
+    display_label: POC VM Deployment Instance
+    description: |
+      POC VM Deployment Instance
+    constraints:
+    - labels:
+      - csys-obj-type: environment
+      - solution: edge-cloud-init
+    display:
+      group: deployment_target
+      index: 1
+
+  ssh_user_private_key:
+    type: secret_key
+    hidden: true
+    allow_update: false
+    required: false
+    display_label: SSH Private Key Secret from the edge-cloud-init deployment
+    description: |
+      Name of the SSH private key secret in the secret store for the VM user
+    display:
+      group: deployment_target
+      index: 5
+
+# SeaweedFS Configuration Inputs
+  swfs_user:
+    type: string
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: SeaweedFS Username
+    description: |
+      Username for SeaweedFS Admin UI, Filer, Master, SMB, and Grafana
+    default: "admin"
+    display:
+      group: seaweedfs_settings
+      index: 1
+
+  swfs_password:
+    type: string
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: SeaweedFS Password
+    description: |
+      Password for SeaweedFS Admin UI, Filer, Master, SMB, and Grafana
+    default: "changeme"
+    display:
+      group: seaweedfs_settings
+      index: 5
+
+  host_fqdn:
+    type: string
+    hidden: false
+    required: false
+    allow_update: false
+    display_label: Host FQDN
+    description: |
+      Base FQDN for the host (e.g. myhost.edge.lab). Used to construct sub-domain
+      FQDNs for each service (admin.myhost.edge.lab, filer.myhost.edge.lab, etc.).
+      Caddy generates TLS certificates automatically for each sub-domain.
+      Leave blank to use the default: hostname.edge.lab
+    default: ""
+    display:
+      group: seaweedfs_settings
+      index: 10
+
+  enable_monitoring:
+    type: boolean
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Enable Monitoring Stack
+    description: |
+      Deploy Grafana, Loki, and Prometheus monitoring stack alongside SeaweedFS
+    default: true
+    display:
+      group: seaweedfs_settings
+      index: 15
+
+  enable_smb:
+    type: boolean
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Enable SMB Share
+    description: |
+      Install and configure Samba to expose the SeaweedFS FUSE mount as an SMB share
+    default: true
+    display:
+      group: seaweedfs_settings
+      index: 20
+
+  enable_nfs:
+    type: boolean
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Enable NFS Export
+    description: |
+      Install and configure NFS to export the SeaweedFS FUSE mount
+    default: true
+    display:
+      group: seaweedfs_settings
+      index: 25
+
+  enable_mq:
+    type: boolean
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Enable Message Queue
+    description: |
+      Deploy SeaweedMQ message broker alongside SeaweedFS
+    default: true
+    display:
+      group: seaweedfs_settings
+      index: 30
+
+  s3_bucket:
+    type: string
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Default S3 Bucket
+    description: |
+      Name of the default S3 bucket created in SeaweedFS
+    default: "charlie"
+    display:
+      group: seaweedfs_settings
+      index: 35
+
+  cluster_name:
+    type: string
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Cluster Name
+    description: |
+      Label applied to all monitoring metrics and logs for cluster identification
+    default: "edge-lab"
+    display:
+      group: seaweedfs_settings
+      index: 40
+
+  debug:
+    type: integer
+    hidden: false
+    required: true
+    allow_update: true
+    display_label: Debug Logging
+    description: |
+      Set to 0 or 1 to enable or disable debug logging
+    default: 1
+    display:
+      group: seaweedfs_settings
+      index: 45
+
+# Env Config Inputs
+
+  offline_mode:
+    type: boolean
+    hidden: false
+    allow_update: true
+    display_label: Airgapped Mode
+    description: |
+      Set to true to download and install from specified offline package
+    default: false
+    display:
+      group: env_config
+      index: 1
+
+  offline_binary_secret:
+    type: secret_key
+    hidden: false
+    only_with: offline_mode
+    allow_update: true
+    display_label: Offline Binary Configuration Secret
+    description: |
+      Secret containing url, username, access_token, and
+      version of the offline archive binary.
+    constraints:
+    - type: binary_configuration
+    display:
+      group: env_config
+      index: 5
+
+  registry_secret:
+    type: secret_key
+    hidden: false
+    required: false
+    allow_update: true
+    display_label: Registry Configuration Secret
+    description: |
+      Binary configuration secret containing the URL, username, and access token
+      of a local container registry. Required when using 'install push' or 'push'
+      run tasks to push images to a local registry, or when installing from a
+      local registry in offline mode.
+    constraints:
+    - type: binary_configuration
+    display:
+      group: env_config
+      index: 7
+
+  run_arg:
+    type: string
+    hidden: false
+    exclusive_with: offline_mode
+    allow_update: true
+    display_label: Install Task
+    description: |
+      Select the operation to perform:
+        install       - Install SeaweedFS from the internet
+        install push  - Install and push all container images to a local registry (requires registry_secret)
+        save          - Download all artifacts and create an offline archive (swfs-save.tar.gz)
+        push          - Push saved container images to a local registry (requires registry_secret)
+    default: "install"
+    constraints:
+      - valid_values:
+        - "install"
+        - "install push"
+        - "save"
+        - "push"
+    display:
+      group: env_config
+      index: 10
+
+  script_url:
+    type: string
+    hidden: false
+    exclusive_with: offline_mode
+    allow_update: true
+    display_label: Script URL
+    description: |
+      URL of the script to be executed
+    default: "https://github.com/Chubtoad5/seaweedfs-installer/raw/refs/heads/main/install-seaweedfs"
+    display:
+      group: env_config
+      index: 15
+
+  upload_package:
+    type: boolean
+    hidden: false
+    allow_update: true
+    display_label: Upload save package
+    description: |
+      Only for the 'save' install task. Uploads the offline archive to a file server after creation.
+    default: false
+    display:
+      group: env_config
+      index: 20
+
+  upload_binary_secret:
+    type: secret_key
+    hidden: false
+    only_with: upload_package
+    allow_update: true
+    display_label: Upload URL location
+    description: |
+      Binary configuration secret pointing to the upload location (i.e. https://myfilerserver.lab/upload_dir/).
+    constraints:
+    - type: binary_configuration
+    display:
+      group: env_config
+      index: 25
+
+  hide_log_output:
+    type: list
+    hidden: false
+    allow_update: true
+    display_label: Log Output to hide
+    description: |
+      stdout hides standard output, stderr hides standard error, both hides both
+    default: ["stdout"]
+    constraints:
+      - valid_values:
+        - "both"
+        - "stdout"
+        - "stderr"
+    display:
+      group: env_config
+      index: 30
+
+# Hidden Inputs
+  offline_binary_url:
+    type: string
+    hidden: true
+    allow_update: false
+    display_label: Offline Binary URL
+    description: |
+      URL of the OS Image that will be used to create
+      the Virtual Machine.
+    default:
+      get_secret:
+      - get_input: offline_binary_secret
+      - binary_image_url
+
+  offline_binary_access_user:
+    type: string
+    hidden: true
+    display_label: Offline Binary Username
+    description: |
+      User name of the Repository of the Image Binary that will be
+      used to create the Virtual Machine.
+    default:
+      get_secret:
+      - get_input: offline_binary_secret
+      - binary_image_access_user
+
+  offline_binary_access_token:
+    type: list
+    hidden: true
+    display_label: Offline Binary Access Token
+    description: |
+      Name of the secret storing the Token to the Repository of the
+      Image Binary that will be used to create the Virtual Machine.
+    default:
+    - get_input: offline_binary_secret
+    - binary_image_access_token
+
+  offline_binary_version:
+    type: string
+    hidden: true
+    display_label: Offline Binary Version
+    description: |
+      Ofline binary version that will be used to create
+      the Virtual Machine.
+    default:
+      get_secret:
+      - get_input: offline_binary_secret
+      - binary_image_version
+
+  upload_binary_url:
+    type: string
+    hidden: true
+    allow_update: false
+    display_label: Upload Binary URL
+    description: |
+      URL of the OS Image that will be used to create
+      the Virtual Machine.
+    default:
+      get_secret:
+      - get_input: upload_binary_secret
+      - binary_image_url
+
+  upload_binary_access_user:
+    type: string
+    hidden: true
+    display_label: Upload Binary Username
+    description: |
+      User name of the Repository of the Image Binary that will be
+      used to create the Virtual Machine.
+    default:
+      get_secret:
+      - get_input: upload_binary_secret
+      - binary_image_access_user
+
+  upload_binary_access_token:
+    type: list
+    hidden: true
+    display_label: Upload Binary Access Token
+    description: |
+      Name of the secret storing the Token to the Repository of the
+      Image Binary that will be used to create the Virtual Machine.
+    default:
+    - get_input: upload_binary_secret
+    - binary_image_access_token
+
+  upload_binary_version:
+    type: string
+    hidden: true
+    display_label: Upload Binary Version
+    description: |
+      Ofline binary version that will be used to create
+      the Virtual Machine.
+    default:
+      get_secret:
+      - get_input: upload_binary_secret
+      - binary_image_version
+
+  registry_url:
+    type: string
+    hidden: true
+    allow_update: false
+    display_label: Registry URL
+    description: |
+      URL of the local container registry derived from registry_secret.
+    default:
+      get_secret:
+      - get_input: registry_secret
+      - binary_image_url
+
+  registry_access_user:
+    type: string
+    hidden: true
+    display_label: Registry Username
+    description: |
+      Username for the local container registry derived from registry_secret.
+    default:
+      get_secret:
+      - get_input: registry_secret
+      - binary_image_access_user
+
+  registry_access_token:
+    type: list
+    hidden: true
+    display_label: Registry Access Token
+    description: |
+      Access token for the local container registry derived from registry_secret.
+    default:
+    - get_input: registry_secret
+    - binary_image_access_token
