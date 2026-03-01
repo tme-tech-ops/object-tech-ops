@@ -36,7 +36,7 @@ else
     ctx logger info "Install script downloaded and made executable."
 fi
 
-# Assemble run_install.sh with the appropriate command and optional registry flags
+# Install command parsing for registry
 ctx logger info "Assembling install command for run_arg: ${RUN_ARG}"
 INSTALL_CMD="${RUN_ARG}"
 if [[ -n "$REG_URL" && "$REG_URL" != "None" ]]; then
