@@ -24,6 +24,28 @@ dsl_definitions:
     S3_BUCKET: { get_input: s3_bucket }
     CLUSTER_NAME: { get_input: cluster_name }
     DEBUG: { get_input: debug }
+    SWFS_IMAGE: { get_input: swfs_image }
+    CADDY_IMAGE: { get_input: caddy_image }
+    SWFS_ADMIN_FQDN: { get_input: swfs_admin_fqdn }
+    SWFS_MASTER_FQDN: { get_input: swfs_master_fqdn }
+    SWFS_FILER_FQDN: { get_input: swfs_filer_fqdn }
+    SWFS_S3_FQDN: { get_input: swfs_s3_fqdn }
+    SWFS_ADMIN_PORT: { get_input: swfs_admin_port }
+    SWFS_MASTER_PORT: { get_input: swfs_master_port }
+    SWFS_FILER_PORT: { get_input: swfs_filer_port }
+    SWFS_S3_PORT: { get_input: swfs_s3_port }
+    MQ_BROKER_PORT: { get_input: mq_broker_port }
+    DEFAULT_FILER_DIR_NAME: { get_input: default_filer_dir_name }
+    ARTIFACTS_TO_DOWNLOAD: { get_input: artifacts_to_download }
+    S3_USER: { get_input: s3_user }
+    LOKI_IMAGE: { get_input: loki_image }
+    GRAFANA_IMAGE: { get_input: grafana_image }
+    PROMETHEUS_EXT_IMAGE: { get_input: prometheus_ext_image }
+    GRAFANA_FQDN: { get_input: grafana_fqdn }
+    GRAFANA_PORT: { get_input: grafana_port }
+    LOKI_PORT: { get_input: loki_port }
+    PROMETHEUS_EXT_PORT: { get_input: prometheus_ext_port }
+    LOKI_BUCKET: { get_input: loki_bucket }
 
   command_fabric_env: &command_fabric_env
     shell_env:

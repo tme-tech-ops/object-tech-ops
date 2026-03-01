@@ -162,6 +162,297 @@ inputs:
       group: seaweedfs_settings
       index: 45
 
+  swfs_image:
+    type: string
+    hidden: false
+    required: true
+    allow_update: true
+    display_label: SeaweedFS Container Image
+    description: |
+      Container image for SeaweedFS
+    default: "chrislusf/seaweedfs:latest"
+    display:
+      group: seaweedfs_settings
+      index: 50
+
+  caddy_image:
+    type: string
+    hidden: false
+    required: true
+    allow_update: true
+    display_label: Caddy Container Image
+    description: |
+      Container image for Caddy reverse proxy
+    default: "caddy:latest"
+    display:
+      group: seaweedfs_settings
+      index: 55
+
+  swfs_admin_fqdn:
+    type: string
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Admin FQDN
+    description: |
+      FQDN for SeaweedFS Admin UI and Caddy landing page.
+      Defaults to admin.<HOST_FQDN> in the script if left empty.
+    default: ""
+    display:
+      group: seaweedfs_settings
+      index: 60
+
+  swfs_master_fqdn:
+    type: string
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Master FQDN
+    description: |
+      FQDN for SeaweedFS Master UI/API.
+      Defaults to master.<HOST_FQDN> in the script if left empty.
+    default: ""
+    display:
+      group: seaweedfs_settings
+      index: 65
+
+  swfs_filer_fqdn:
+    type: string
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Filer FQDN
+    description: |
+      FQDN for SeaweedFS Filer UI/API.
+      Defaults to filer.<HOST_FQDN> in the script if left empty.
+    default: ""
+    display:
+      group: seaweedfs_settings
+      index: 70
+
+  swfs_s3_fqdn:
+    type: string
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: S3 FQDN
+    description: |
+      FQDN for SeaweedFS S3 API.
+      Defaults to s3.<HOST_FQDN> in the script if left empty.
+    default: ""
+    display:
+      group: seaweedfs_settings
+      index: 75
+
+  swfs_admin_port:
+    type: integer
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Admin Port
+    description: |
+      TCP port for the SeaweedFS Admin UI / Caddy HTTPS endpoint
+    default: 443
+    display:
+      group: seaweedfs_settings
+      index: 80
+
+  swfs_master_port:
+    type: integer
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Master Port
+    description: |
+      TCP port for SeaweedFS Master UI/API
+    default: 9333
+    display:
+      group: seaweedfs_settings
+      index: 85
+
+  swfs_filer_port:
+    type: integer
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Filer Port
+    description: |
+      TCP port for SeaweedFS Filer UI/API
+    default: 8888
+    display:
+      group: seaweedfs_settings
+      index: 90
+
+  swfs_s3_port:
+    type: integer
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: S3 Port
+    description: |
+      TCP port for SeaweedFS S3 API
+    default: 8333
+    display:
+      group: seaweedfs_settings
+      index: 95
+
+  mq_broker_port:
+    type: integer
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Message Queue Broker Port
+    description: |
+      TCP port for SeaweedMQ message broker
+    default: 17777
+    display:
+      group: seaweedfs_settings
+      index: 100
+
+  default_filer_dir_name:
+    type: string
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Default Filer Directory
+    description: |
+      Default directory name on SeaweedFS Filer for artifacts
+    default: "artifacts"
+    display:
+      group: seaweedfs_settings
+      index: 105
+
+  artifacts_to_download:
+    type: string
+    hidden: false
+    required: true
+    allow_update: true
+    display_label: Artifacts to Download
+    description: |
+      List of artifact URLs to auto download with curl and upload to SeaweedFS filer
+    default: ""
+    display:
+      group: seaweedfs_settings
+      index: 110
+
+  s3_user:
+    type: string
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: S3 User
+    description: |
+      S3 user name. Defaults to the SeaweedFS username if left empty.
+    default: ""
+    display:
+      group: seaweedfs_settings
+      index: 115
+
+  loki_image:
+    type: string
+    hidden: false
+    required: true
+    allow_update: true
+    display_label: Loki Container Image
+    description: |
+      Container image for Grafana Loki log aggregation
+    default: "grafana/loki:3.4.2"
+    display:
+      group: seaweedfs_settings
+      index: 120
+
+  grafana_image:
+    type: string
+    hidden: false
+    required: true
+    allow_update: true
+    display_label: Grafana Container Image
+    description: |
+      Container image for Grafana OSS dashboard
+    default: "grafana/grafana-oss:11.5.2"
+    display:
+      group: seaweedfs_settings
+      index: 125
+
+  prometheus_ext_image:
+    type: string
+    hidden: false
+    required: true
+    allow_update: true
+    display_label: Prometheus Container Image
+    description: |
+      Container image for Prometheus metrics collector
+    default: "prom/prometheus:v3.2.1"
+    display:
+      group: seaweedfs_settings
+      index: 130
+
+  grafana_fqdn:
+    type: string
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Grafana FQDN
+    description: |
+      FQDN for Grafana UI proxied through Caddy.
+      Defaults to grafana.<HOST_FQDN> in the script if left empty.
+    default: ""
+    display:
+      group: seaweedfs_settings
+      index: 135
+
+  grafana_port:
+    type: integer
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Grafana Port
+    description: |
+      External TCP port for Grafana UI
+    default: 3000
+    display:
+      group: seaweedfs_settings
+      index: 140
+
+  loki_port:
+    type: integer
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Loki Port
+    description: |
+      TCP port for Loki push/query endpoint (direct, no TLS)
+    default: 3100
+    display:
+      group: seaweedfs_settings
+      index: 145
+
+  prometheus_ext_port:
+    type: integer
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Prometheus Port
+    description: |
+      External TCP port for Prometheus remote-write receiver
+    default: 9090
+    display:
+      group: seaweedfs_settings
+      index: 150
+
+  loki_bucket:
+    type: string
+    hidden: false
+    required: true
+    allow_update: false
+    display_label: Loki S3 Bucket
+    description: |
+      S3 bucket name used for Loki log storage
+    default: "loki-logs"
+    display:
+      group: seaweedfs_settings
+      index: 155
+
 # Env Config Inputs
 
   offline_mode:

@@ -32,6 +32,28 @@ input_groups:
       - s3_bucket
       - cluster_name
       - debug
+      - swfs_image
+      - caddy_image
+      - swfs_admin_fqdn
+      - swfs_master_fqdn
+      - swfs_filer_fqdn
+      - swfs_s3_fqdn
+      - swfs_admin_port
+      - swfs_master_port
+      - swfs_filer_port
+      - swfs_s3_port
+      - mq_broker_port
+      - default_filer_dir_name
+      - artifacts_to_download
+      - s3_user
+      - loki_image
+      - grafana_image
+      - prometheus_ext_image
+      - grafana_fqdn
+      - grafana_port
+      - loki_port
+      - prometheus_ext_port
+      - loki_bucket
 
   env_config:
     display_label: Environment Configuration
