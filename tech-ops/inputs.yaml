@@ -285,7 +285,6 @@ inputs:
       group: object_storage_config
       index: 35
 
-
   enable_smb:
     type: boolean
     hidden: false
@@ -490,6 +489,19 @@ inputs:
       group: env_config
       index: 7
 
+  registry_url:
+    type: string
+    hidden: false
+    required: false
+    allow_update: true
+    display_label: Registry URL:PORT
+    description: |
+      URL of the local container registry (e.g. myregistry.lab:5000)
+    default: ""
+    display:
+      group: env_config
+      index: 8
+
   run_arg:
     type: string
     hidden: false
@@ -678,19 +690,6 @@ inputs:
       get_secret:
       - get_input: upload_binary_secret
       - binary_image_version
-
-  registry_url:
-    type: string
-    hidden: false
-    required: false
-    allow_update: true
-    display_label: Registry URL
-    description: |
-      URL of the local container registry (e.g. myregistry.lab:5000)
-    default: ""
-    display:
-      group: env_config
-      index: 8
 
   registry_access_user:
     type: string

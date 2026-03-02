@@ -63,7 +63,7 @@ dsl_definitions:
     ENABLE_SMB: { get_input: enable_smb }
     ENABLE_NFS: { get_input: enable_nfs }
     ENABLE_MQ: { get_input: enable_mq }
-    S3_BUCKET: { get_input: s3_bucket }
+    S3_BUCKET: { concat: ['"', { get_input: s3_bucket }, '"'] }
     CLUSTER_NAME: { get_input: cluster_name }
     DEBUG: { get_input: debug }
     SWFS_IMAGE: { get_input: swfs_image }
@@ -78,7 +78,7 @@ dsl_definitions:
     SWFS_S3_PORT: { get_input: swfs_s3_port }
     MQ_BROKER_PORT: { get_input: mq_broker_port }
     DEFAULT_FILER_DIR_NAME: { get_input: default_filer_dir_name }
-    ARTIFACTS_TO_DOWNLOAD: { get_input: artifacts_to_download }
+    ARTIFACTS_TO_DOWNLOAD: { concat: ['"', { get_input: artifacts_to_download }, '"'] }
     S3_USER: { get_input: s3_user }
     LOKI_IMAGE: { get_input: loki_image }
     GRAFANA_IMAGE: { get_input: grafana_image }
