@@ -576,9 +576,6 @@ inputs:
     display_label: SSH Private Key Secret from the edge-cloud-init deployment
     description: |
       Name of the SSH private key secret in the secret store for the VM user
-    display:
-      group: deployment_target
-      index: 5
 
   offline_binary_url:
     type: string
