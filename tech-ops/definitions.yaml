@@ -30,6 +30,7 @@ dsl_definitions:
     hide_output: { get_input: hide_log_output }
     proxy_settings:
       auto_resolve: false
+      enable_socks5: false
       target_id: { get_environment_capability: proxy_target_id }
       target_ip: { get_environment_capability: vm_name_id }
 
@@ -51,6 +52,7 @@ dsl_definitions:
     hide_output: { get_input: hide_log_output }
     proxy_settings:
       auto_resolve: false
+      enable_socks5: false
       target_id: { get_environment_capability: proxy_target_id }
       target_ip: { get_environment_capability: vm_name_id }
 
@@ -114,6 +116,7 @@ dsl_definitions:
       hide_output: { get_input: hide_log_output }
       proxy_settings:
         auto_resolve: false
+        enable_socks5: false
         target_id: { get_environment_capability: proxy_target_id }
         target_ip: { get_environment_capability: vm_name_id }
 
@@ -155,6 +158,7 @@ node_templates:
             hide_output: { get_input: hide_log_output }
             proxy_settings:
               auto_resolve: false
+              enable_socks5: false
               target_id: { get_environment_capability: proxy_target_id }
               target_ip: { get_environment_capability: vm_name_id }
             commands: *run_install_cmds
@@ -167,6 +171,7 @@ node_templates:
             hide_output: { get_input: hide_log_output }
             proxy_settings:
               auto_resolve: false
+              enable_socks5: false
               target_id: { get_environment_capability: proxy_target_id }
               target_ip: { get_environment_capability: vm_name_id }
             commands: *run_install_cmds
@@ -179,6 +184,7 @@ node_templates:
             hide_output: { get_input: hide_log_output }
             proxy_settings:
               auto_resolve: false
+              enable_socks5: false
               target_id: { get_environment_capability: proxy_target_id }
               target_ip: { get_environment_capability: vm_name_id }
             commands: *run_uninstall_cmds
