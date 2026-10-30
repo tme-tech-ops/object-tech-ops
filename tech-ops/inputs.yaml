@@ -21,7 +21,7 @@ inputs:
     type: string
     hidden: false
     required: true
-    allow_update: true
+    allow_update: false
     display_label: SeaweedFS Container Image
     description: |
       Container image for SeaweedFS
@@ -34,7 +34,7 @@ inputs:
     type: string
     hidden: false
     required: true
-    allow_update: true
+    allow_update: false
     display_label: Caddy Container Image
     description: |
       Container image for Caddy reverse proxy
@@ -92,6 +92,9 @@ inputs:
     description: |
       TCP port for the SeaweedFS Admin UI / Caddy HTTPS endpoint
     default: 443
+    constraints:
+      - in_range: [1, 65535]
+        error_message: Must be a port number (1-65535).
     display:
       group: seaweedfs_config
       index: 30
@@ -119,6 +122,9 @@ inputs:
     description: |
       TCP port for SeaweedFS Master UI/API
     default: 9333
+    constraints:
+      - in_range: [1, 65535]
+        error_message: Must be a port number (1-65535).
     display:
       group: seaweedfs_config
       index: 40
@@ -145,6 +151,9 @@ inputs:
     description: |
       TCP port for SeaweedMQ message broker
     default: 17777
+    constraints:
+      - in_range: [1, 65535]
+        error_message: Must be a port number (1-65535).
     display:
       group: seaweedfs_config
       index: 50
@@ -174,6 +183,9 @@ inputs:
     description: |
       TCP port for SeaweedFS Filer UI/API
     default: 8888
+    constraints:
+      - in_range: [1, 65535]
+        error_message: Must be a port number (1-65535).
     display:
       group: object_storage_config
       index: 5
@@ -195,7 +207,7 @@ inputs:
     type: string
     hidden: false
     required: false
-    allow_update: true
+    allow_update: false
     display_label: Artifacts to Download
     description: |
       List of artifact URLs to auto download with curl and upload to SeaweedFS filer
@@ -227,6 +239,9 @@ inputs:
     description: |
       TCP port for SeaweedFS S3 API
     default: 8333
+    constraints:
+      - in_range: [1, 65535]
+        error_message: Must be a port number (1-65535).
     display:
       group: object_storage_config
       index: 25
@@ -302,7 +317,7 @@ inputs:
     type: string
     hidden: false
     required: false
-    allow_update: true
+    allow_update: false
     display_label: Loki Container Image
     description: |
       Container image for Grafana Loki log aggregation
@@ -315,7 +330,7 @@ inputs:
     type: string
     hidden: false
     required: false
-    allow_update: true
+    allow_update: false
     display_label: Grafana Container Image
     description: |
       Container image for Grafana OSS dashboard
@@ -328,7 +343,7 @@ inputs:
     type: string
     hidden: false
     required: false
-    allow_update: true
+    allow_update: false
     display_label: Prometheus Container Image
     description: |
       Container image for Prometheus metrics collector
@@ -360,6 +375,9 @@ inputs:
     description: |
       External TCP port for Grafana UI
     default: 3000
+    constraints:
+      - in_range: [1, 65535]
+        error_message: Must be a port number (1-65535).
     display:
       group: monitoring_config
       index: 25
@@ -373,6 +391,9 @@ inputs:
     description: |
       TCP port for Loki push/query endpoint (direct, no TLS)
     default: 3100
+    constraints:
+      - in_range: [1, 65535]
+        error_message: Must be a port number (1-65535).
     display:
       group: monitoring_config
       index: 30
@@ -386,6 +407,9 @@ inputs:
     description: |
       External TCP port for Prometheus remote-write receiver
     default: 9090
+    constraints:
+      - in_range: [1, 65535]
+        error_message: Must be a port number (1-65535).
     display:
       group: monitoring_config
       index: 35
@@ -421,7 +445,7 @@ inputs:
   offline_mode:
     type: boolean
     hidden: false
-    allow_update: true
+    allow_update: false
     display_label: Airgapped Mode
     description: |
       Set to true to download and install from specified offline package
@@ -434,13 +458,14 @@ inputs:
     type: secret_key
     hidden: false
     only_with: offline_mode
-    allow_update: true
+    allow_update: false
     display_label: Offline Binary Configuration Secret
     description: |
       Secret containing url, username, access_token, and
       version of the offline archive binary.
     constraints:
     - type: binary_configuration
+      error_message: Select a secret of type binary_configuration.
     display:
       group: env_config
       index: 5
@@ -449,7 +474,7 @@ inputs:
     type: secret_key
     hidden: false
     required: false
-    allow_update: true
+    allow_update: false
     display_label: Registry Authentication Secret
     description: |
       Secret containing the username and password for a local container registry.
@@ -457,6 +482,7 @@ inputs:
       a local registry, or when installing from a local registry in offline mode.
     constraints:
     - type: basic_auth_credentials
+      error_message: Select a secret of type basic_auth_credentials.
     display:
       group: env_config
       index: 7
@@ -465,7 +491,7 @@ inputs:
     type: string
     hidden: false
     required: false
-    allow_update: true
+    allow_update: false
     display_label: Registry URL:PORT
     description: |
       URL of the local container registry (e.g. myregistry.lab:5000)
@@ -478,7 +504,7 @@ inputs:
     type: string
     hidden: false
     exclusive_with: offline_mode
-    allow_update: true
+    allow_update: false
     display_label: Install Task
     description: |
       Select the operation to perform:
@@ -493,6 +519,7 @@ inputs:
         - "install push"
         - "save"
         - "push"
+        error_message: Select one of the listed tasks.
     display:
       group: env_config
       index: 10
@@ -501,11 +528,15 @@ inputs:
     type: string
     hidden: false
     exclusive_with: offline_mode
-    allow_update: true
+    allow_update: false
     display_label: Script URL
-    description: |
-      URL of the script to be executed
-    default: "https://github.com/Chubtoad5/seaweedfs-installer/raw/refs/heads/main/install-seaweedfs"
+    description: >
+      URL of the SeaweedFS installer script (install-seaweedfs). The default is the
+      installer commit this release was tested with.
+    default: "https://github.com/Chubtoad5/seaweedfs-installer/raw/530e0b4d8e9b617fe4be05b3f1005b2447043259/install-seaweedfs"
+    constraints:
+      - pattern: '^https?://\S+/install-seaweedfs$'
+        error_message: Enter the URL of install-seaweedfs.
     display:
       group: env_config
       index: 15
@@ -513,7 +544,7 @@ inputs:
   upload_package:
     type: boolean
     hidden: false
-    allow_update: true
+    allow_update: false
     display_label: Upload save package
     description: |
       Only for the 'save' install task. Uploads the offline archive to a file server after creation.
@@ -526,20 +557,22 @@ inputs:
     type: secret_key
     hidden: false
     only_with: upload_package
-    allow_update: true
+    allow_update: false
     display_label: Upload URL location
     description: |
       Binary configuration secret pointing to the upload location (i.e. https://myfilerserver.lab/upload_dir/).
     constraints:
     - type: binary_configuration
+      error_message: Select a secret of type binary_configuration.
     display:
       group: env_config
       index: 25
 
   hide_log_output:
     type: list
+    item_type: string
     hidden: false
-    allow_update: true
+    allow_update: false
     display_label: Log Output to hide
     description: |
       stdout hides standard output, stderr hides standard error, both hides both
@@ -549,6 +582,7 @@ inputs:
         - "both"
         - "stdout"
         - "stderr"
+        error_message: Must be both, stdout, or stderr.
     display:
       group: env_config
       index: 30
@@ -557,25 +591,19 @@ inputs:
     type: integer
     hidden: false
     required: true
-    allow_update: true
+    allow_update: false
     display_label: Debug Logging
     description: |
       Set to 0 or 1 to enable or disable debug logging
     default: 1
+    constraints:
+      - valid_values: [0, 1]
+        error_message: Must be 0 or 1.
     display:
       group: env_config
       index: 35
 
 # Hidden Inputs
-
-  ssh_user_private_key:
-    type: secret_key
-    hidden: true
-    allow_update: false
-    required: false
-    display_label: SSH Private Key Secret from the edge-cloud-init deployment
-    description: |
-      Name of the SSH private key secret in the secret store for the VM user
 
   offline_binary_url:
     type: string
@@ -592,6 +620,7 @@ inputs:
 
   offline_binary_access_user:
     type: string
+    allow_update: false
     hidden: true
     display_label: Offline Binary Username
     description: |
@@ -601,29 +630,6 @@ inputs:
       get_secret:
       - get_input: offline_binary_secret
       - binary_image_access_user
-
-  offline_binary_access_token:
-    type: list
-    hidden: true
-    display_label: Offline Binary Access Token
-    description: |
-      Name of the secret storing the Token to the Repository of the
-      Image Binary that will be used to create the Virtual Machine.
-    default:
-    - get_input: offline_binary_secret
-    - binary_image_access_token
-
-  offline_binary_version:
-    type: string
-    hidden: true
-    display_label: Offline Binary Version
-    description: |
-      Ofline binary version that will be used to create
-      the Virtual Machine.
-    default:
-      get_secret:
-      - get_input: offline_binary_secret
-      - binary_image_version
 
   upload_binary_url:
     type: string
@@ -640,6 +646,7 @@ inputs:
 
   upload_binary_access_user:
     type: string
+    allow_update: false
     hidden: true
     display_label: Upload Binary Username
     description: |
@@ -650,31 +657,9 @@ inputs:
       - get_input: upload_binary_secret
       - binary_image_access_user
 
-  upload_binary_access_token:
-    type: list
-    hidden: true
-    display_label: Upload Binary Access Token
-    description: |
-      Name of the secret storing the Token to the Repository of the
-      Image Binary that will be used to create the Virtual Machine.
-    default:
-    - get_input: upload_binary_secret
-    - binary_image_access_token
-
-  upload_binary_version:
-    type: string
-    hidden: true
-    display_label: Upload Binary Version
-    description: |
-      Ofline binary version that will be used to create
-      the Virtual Machine.
-    default:
-      get_secret:
-      - get_input: upload_binary_secret
-      - binary_image_version
-
   registry_access_user:
     type: string
+    allow_update: false
     hidden: true
     display_label: Registry Username
     description: |
@@ -683,14 +668,3 @@ inputs:
       get_secret:
       - get_input: registry_secret
       - username
-
-  registry_password:
-    type: string
-    hidden: true
-    display_label: Registry Password
-    description: |
-      Password for the local container registry derived from registry_secret.
-    default:
-      get_secret:
-      - get_input: registry_secret
-      - password
