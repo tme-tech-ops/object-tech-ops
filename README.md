@@ -84,7 +84,7 @@ This blueprint **must be deployed on top of an existing `edge-cloud-init` deploy
 | Display Name | Input Key | Default | Description |
 |---|---|---|---|
 | Install Task | `run_arg` | `install` | Operation to perform. Options: `install` (from internet), `install push` (install and push images to local registry), `save` (create offline archive), `push` (push saved images to local registry). Mutually exclusive with Airgapped Mode. |
-| Script URL | `script_url` | *(installer script URL)* | URL of the installation script to execute. Mutually exclusive with Airgapped Mode. |
+| Script URL | `script_url` | *(pinned installer commit)* | URL of the installation script to execute; the default is the installer commit this release was tested with. Mutually exclusive with Airgapped Mode. |
 | Airgapped Mode | `offline_mode` | `false` | Set to `true` to download and install from the specified offline package. |
 | Offline Binary Configuration Secret | `offline_binary_secret` | *(optional)* | Secret containing the URL, username, access token, and version of the offline archive binary. Only shown when Airgapped Mode is enabled. |
 | Registry Authentication Secret | `registry_secret` | *(optional)* | Secret containing username and password for a local container registry. Required for `install push` or `push` tasks, or offline installs from a local registry. |
@@ -111,3 +111,26 @@ After a successful deployment the following capabilities are available:
 | `offline_package_name` | Name of the offline archive (save operation only) |
 | `offline_package_uploaded` | Whether the offline archive was uploaded |
 | `offline_package_url` | URL where the offline archive was uploaded |
+
+## Updating a Deployment
+
+SeaweedFS is installed once, at install. Every input is locked and an update
+never re-runs the installer, so an update with no change, or a move to a new
+revision of this blueprint, leaves SeaweedFS, its data and its S3 keys as they
+are. Image upgrades, the SMB/NFS/MQ/monitoring switches and stable S3 keys are
+planned as update features.
+
+- **Uninstalling** an `install` or `install push` deployment uninstalls
+  SeaweedFS and deletes its data: objects, the Caddy CA that clients trust, and
+  monitoring. Uninstalling a `save` or `push` deployment leaves SeaweedFS alone.
+- **A reinstall or Heal** of `install_app` keeps SeaweedFS and its S3 keys: when
+  SeaweedFS is installed and running, the installer isn't run again (a re-run
+  would issue new S3 keys).
+- To resize the VM under SeaweedFS, update its **edge-cloudinit-linux**
+  deployment with Force ticked (this deployment depends on it); SeaweedFS comes
+  back after the VM restarts.
+- If the VM gets a new IP address (for example a segment change), the URLs in
+  the outputs and the certificates still show the old address until an
+  IP-change repair feature exists.
+
+See [CHANGELOG.md](CHANGELOG.md) for the changes in each version.

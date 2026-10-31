@@ -1,10 +1,13 @@
 tosca_definitions_version: dell_1_1
 
 description: >
-  This blueprint deploys SeaweedFS with Caddy reverse proxy on an existing edge-cloud-init deployment
+  This blueprint installs SeaweedFS object storage (S3, filer, optional SMB, NFS, MQ and
+  monitoring) behind a Caddy reverse proxy on an existing edge-cloudinit VM, or builds and pushes
+  its offline package. Its settings are fixed at install; an update doesn't re-run the installer.
 
 imports:
   - dell/types/types.yaml
+  - plugin:fabric-plugin?version= >=3.4.2.0,<4.0.0.0
   - tech-ops/definitions.yaml
   - tech-ops/inputs.yaml
   - tech-ops/outputs.yaml
@@ -29,7 +32,7 @@ input_groups:
       - mq_broker_port
 
   object_storage_config:
-    display_label: Object StorageConfiguration
+    display_label: Object Storage Configuration
     collapsible: true
     index: 2
     inputs:
@@ -91,7 +94,7 @@ labels:
       - seaweedfs-tech-ops
   version:
     values:
-      - "1.0.0.0"
+      - "1.2.0.0"
 
 blueprint_labels:
   env:
