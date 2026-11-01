@@ -8,6 +8,16 @@ This blueprint is designed for **NativeEdge Endpoints** on **Dell Automation Pla
 
 This blueprint deploys **SeaweedFS** with a **Caddy** reverse proxy on an existing VM provisioned by the `edge-cloud-init` blueprint from the tme-tech-ops suite. It optionally includes a full monitoring stack (Grafana, Loki, Prometheus) and exposes storage via S3, SMB, and NFS protocols.
 
+## Releases
+
+| Release | DAP | DDPC | Version | Tested |
+|---|---|---|---|---|
+| [`1.2.0.0`](https://github.com/tme-tech-ops/object-tech-ops/releases/tag/1.2.0.0) | 2.1.1.0 | 4.3.0.0 | 1.2.0.0 | yes |
+| [`1.1.5.0`](https://github.com/tme-tech-ops/object-tech-ops/releases/tag/1.1.5.0) | 2.0.0.1 | 4.2.0.0 | 1.1.5.0 (branch `ddpc-4.2.0.0-snapshot`) | no |
+
+Download the zip attached to the release that matches your DAP and DDPC versions (not
+"Source code"); its notes give the blueprint name, revision and upload order.
+
 ## Prerequisites
 
 This blueprint **must be deployed on top of an existing `edge-cloud-init` deployment** from the tme-tech-ops suite. The target VM deployment is referenced via the `vm_deployment_id` input and must carry the labels:
