@@ -1,5 +1,9 @@
 # object-tech-ops
 
+> **DAP 2.0.0.1 + DDPC 4.2.0.0 snapshot branch (1.1.5.0, untested).** The 1.2.0.0 code. It
+> imports only the fabric-plugin, which DAP 2.0.0.1 doesn't ship: upload it first. For DAP 2.1.1.0 + DDPC 4.3.0.0 use `main` and release
+> [1.2.0.0](https://github.com/tme-tech-ops/object-tech-ops/releases/tag/1.2.0.0).
+
 Blueprint for deploying object storage and monitoring stack for **edge-cloud-init** based VM deployments.  
   
 This blueprint is designed for **NativeEdge Endpoints** on **Dell Automation Platform**
