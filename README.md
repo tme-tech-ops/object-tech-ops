@@ -149,8 +149,10 @@ planned as update features.
   SeaweedFS is installed and running, the installer isn't run again. On a VM
   that 1.2.0.0 installed, the installer there is `v1.0.0`, and a re-run would
   issue new S3 keys. Installer `v1.1.0` and later keep the keys, and `v1.3.0`
-  leaves Samba and NFS running when a run changes nothing. If SeaweedFS is down, Heal runs the installer
-  that is on the VM.
+  leaves Samba and NFS running when a run changes nothing. If SeaweedFS is
+  down, a Heal of `install_app` with **Force reinstall** ticked runs the
+  installer that is on the VM. Without it, DAP's Heal skips `install_app`,
+  which has no status check.
 - **Updating a 1.2.0.0 deployment to 1.2.1.0** changes nothing on the VM: the
   installer copy it already has stays in place, and the deployment keeps the
   Script URL it was installed with.
