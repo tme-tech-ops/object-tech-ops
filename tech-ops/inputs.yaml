@@ -13,6 +13,9 @@ inputs:
       Caddy generates TLS certificates automatically for each sub-domain.
       Leave blank to use the default: hostname.edge.lab
     default: ""
+    constraints:
+      - pattern: '^$|^[A-Za-z0-9]([A-Za-z0-9.-]{0,251}[A-Za-z0-9])?$'
+        error_message: Leave blank, or enter a host name (letters, digits, dots and hyphens), up to 253 characters.
     display:
       group: seaweedfs_config
       index: 1
@@ -24,8 +27,12 @@ inputs:
     allow_update: false
     display_label: SeaweedFS Container Image
     description: |
-      Container image for SeaweedFS
-    default: "chrislusf/seaweedfs:latest"
+      Container image for SeaweedFS. The default is the version the installer pins.
+      latest pulls whatever is newest on the day of the install.
+    default: "chrislusf/seaweedfs:4.30"
+    constraints:
+      - pattern: '^[A-Za-z0-9][A-Za-z0-9._/:@-]*$'
+        error_message: Enter an image reference such as name:tag (no spaces or quotes).
     display:
       group: seaweedfs_config
       index: 5
@@ -37,8 +44,12 @@ inputs:
     allow_update: false
     display_label: Caddy Container Image
     description: |
-      Container image for Caddy reverse proxy
-    default: "caddy:latest"
+      Container image for Caddy reverse proxy. The default is the version the
+      installer pins. latest pulls whatever is newest on the day of the install.
+    default: "caddy:2.11.3"
+    constraints:
+      - pattern: '^[A-Za-z0-9][A-Za-z0-9._/:@-]*$'
+        error_message: Enter an image reference such as name:tag (no spaces or quotes).
     display:
       group: seaweedfs_config
       index: 10
@@ -50,8 +61,12 @@ inputs:
     allow_update: false
     display_label: SeaweedFS Username
     description: |
-      Username for SeaweedFS Admin UI, Filer, Master, SMB, and Grafana
+      Username for SeaweedFS Admin UI, Filer, Master, SMB, and Grafana. It is also
+      the Linux user for the SMB share.
     default: "admin"
+    constraints:
+      - pattern: '^[a-z_][a-z0-9_-]{0,31}$'
+        error_message: Use a Linux user name - lowercase letters, digits, _ and -, starting with a letter or _, up to 32 characters.
     display:
       group: seaweedfs_config
       index: 15
@@ -63,8 +78,14 @@ inputs:
     allow_update: false
     display_label: SeaweedFS Password
     description: |
-      Password for SeaweedFS Admin UI, Filer, Master, SMB, and Grafana
+      Password for SeaweedFS Admin UI, Filer, Master, SMB, and Grafana. The
+      installer writes it into its compose files, so these aren't allowed - a single
+      quote ('), $, a double quote ("), a backslash, #, a colon followed by a space
+      or at the end, a leading or trailing space, and control characters.
     default: "changeme"
+    constraints:
+      - pattern: '^(?! )(?!.* $)(?!.*: )(?!.*:$)[^''$"\\#\x00-\x1f\x7f]+$'
+        error_message: Not allowed - single quotes ('), dollar signs ($), double quotes ("), backslashes, #, a colon followed by a space or at the end, a leading or trailing space, control characters.
     display:
       group: seaweedfs_config
       index: 20
@@ -79,6 +100,9 @@ inputs:
       FQDN for SeaweedFS Admin UI and Caddy landing page.
       Defaults to admin.<HOST_FQDN> in the script if left empty.
     default: ""
+    constraints:
+      - pattern: '^$|^[A-Za-z0-9]([A-Za-z0-9.-]{0,251}[A-Za-z0-9])?$'
+        error_message: Leave blank, or enter a host name (letters, digits, dots and hyphens), up to 253 characters.
     display:
       group: seaweedfs_config
       index: 25
@@ -109,6 +133,9 @@ inputs:
       FQDN for SeaweedFS Master UI/API.
       Defaults to master.<HOST_FQDN> in the script if left empty.
     default: ""
+    constraints:
+      - pattern: '^$|^[A-Za-z0-9]([A-Za-z0-9.-]{0,251}[A-Za-z0-9])?$'
+        error_message: Leave blank, or enter a host name (letters, digits, dots and hyphens), up to 253 characters.
     display:
       group: seaweedfs_config
       index: 35
@@ -170,6 +197,9 @@ inputs:
       FQDN for SeaweedFS Filer UI/API.
       Defaults to filer.<HOST_FQDN> in the script if left empty.
     default: ""
+    constraints:
+      - pattern: '^$|^[A-Za-z0-9]([A-Za-z0-9.-]{0,251}[A-Za-z0-9])?$'
+        error_message: Leave blank, or enter a host name (letters, digits, dots and hyphens), up to 253 characters.
     display:
       group: object_storage_config
       index: 1
@@ -197,8 +227,12 @@ inputs:
     allow_update: false
     display_label: Default Filer Directory
     description: |
-      Default directory name on SeaweedFS Filer for artifacts
+      Default directory name on SeaweedFS Filer for artifacts. It is also the name
+      of the SMB share and the NFS export.
     default: "artifacts"
+    constraints:
+      - pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$'
+        error_message: Use letters, digits, dots, underscores and hyphens, starting with a letter or digit, up to 64 characters.
     display:
       group: object_storage_config
       index: 10
@@ -210,8 +244,12 @@ inputs:
     allow_update: false
     display_label: Artifacts to Download
     description: |
-      List of artifact URLs to auto download with curl and upload to SeaweedFS filer
+      Artifact URLs, separated by spaces, that the installer downloads with curl and
+      uploads to the SeaweedFS Filer. Leave blank for none.
     default: ""
+    constraints:
+      - pattern: '^$|^https?://[^\s''"$`\\]+( https?://[^\s''"$`\\]+)*$'
+        error_message: Leave blank, or enter http(s) URLs separated by single spaces (no quotes, $, backticks or backslashes).
     display:
       group: object_storage_config
       index: 15
@@ -226,6 +264,9 @@ inputs:
       FQDN for SeaweedFS S3 API.
       Defaults to s3.<HOST_FQDN> in the script if left empty.
     default: ""
+    constraints:
+      - pattern: '^$|^[A-Za-z0-9]([A-Za-z0-9.-]{0,251}[A-Za-z0-9])?$'
+        error_message: Leave blank, or enter a host name (letters, digits, dots and hyphens), up to 253 characters.
     display:
       group: object_storage_config
       index: 20
@@ -255,6 +296,9 @@ inputs:
     description: |
       S3 user name. Defaults to the SeaweedFS username if left empty.
     default: "admin"
+    constraints:
+      - pattern: '^$|^[a-z_][a-z0-9_-]{0,31}$'
+        error_message: Leave blank, or use lowercase letters, digits, _ and -, starting with a letter or _, up to 32 characters.
     display:
       group: object_storage_config
       index: 30
@@ -266,8 +310,12 @@ inputs:
     allow_update: false
     display_label: Default S3 Bucket
     description: |
-      Name of the default S3 bucket created in SeaweedFS
+      Names of the S3 buckets to create in SeaweedFS, separated by spaces. Leave
+      blank for the installer default, charlie.
     default: "charlie"
+    constraints:
+      - pattern: '^$|^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]( [a-z0-9][a-z0-9.-]{1,61}[a-z0-9])*$'
+        error_message: Leave blank, or enter S3 bucket names (3-63 lowercase letters, digits, dots and hyphens, starting and ending with a letter or digit), separated by single spaces.
     display:
       group: object_storage_config
       index: 35
@@ -322,6 +370,9 @@ inputs:
     description: |
       Container image for Grafana Loki log aggregation
     default: "grafana/loki:3.4.2"
+    constraints:
+      - pattern: '^$|^[A-Za-z0-9][A-Za-z0-9._/:@-]*$'
+        error_message: Leave blank for the installer default, or enter an image reference such as name:tag (no spaces or quotes).
     display:
       group: monitoring_config
       index: 5
@@ -335,6 +386,9 @@ inputs:
     description: |
       Container image for Grafana OSS dashboard
     default: "grafana/grafana-oss:11.5.2"
+    constraints:
+      - pattern: '^$|^[A-Za-z0-9][A-Za-z0-9._/:@-]*$'
+        error_message: Leave blank for the installer default, or enter an image reference such as name:tag (no spaces or quotes).
     display:
       group: monitoring_config
       index: 10
@@ -348,6 +402,9 @@ inputs:
     description: |
       Container image for Prometheus metrics collector
     default: "prom/prometheus:v3.2.1"
+    constraints:
+      - pattern: '^$|^[A-Za-z0-9][A-Za-z0-9._/:@-]*$'
+        error_message: Leave blank for the installer default, or enter an image reference such as name:tag (no spaces or quotes).
     display:
       group: monitoring_config
       index: 15
@@ -362,6 +419,9 @@ inputs:
       FQDN for Grafana UI proxied through Caddy.
       Defaults to grafana.<HOST_FQDN> in the script if left empty.
     default: ""
+    constraints:
+      - pattern: '^$|^[A-Za-z0-9]([A-Za-z0-9.-]{0,251}[A-Za-z0-9])?$'
+        error_message: Leave blank, or enter a host name (letters, digits, dots and hyphens), up to 253 characters.
     display:
       group: monitoring_config
       index: 20
@@ -423,6 +483,9 @@ inputs:
     description: |
       S3 bucket name used for Loki log storage
     default: "loki-logs"
+    constraints:
+      - pattern: '^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$'
+        error_message: Enter an S3 bucket name - 3-63 lowercase letters, digits, dots and hyphens, starting and ending with a letter or digit.
     display:
       group: monitoring_config
       index: 40
@@ -434,8 +497,12 @@ inputs:
     allow_update: false
     display_label: Cluster Name
     description: |
-      Label applied to all monitoring metrics and logs for cluster identification
+      Label applied to all monitoring metrics and logs for cluster identification.
+      Leave blank for the installer default, edge-lab.
     default: "edge-lab"
+    constraints:
+      - pattern: '^$|^[A-Za-z0-9][A-Za-z0-9._-]{0,62}$'
+        error_message: Leave blank, or use letters, digits, dots, underscores and hyphens, starting with a letter or digit, up to 63 characters.
     display:
       group: monitoring_config
       index: 45
@@ -480,6 +547,8 @@ inputs:
       Secret containing the username and password for a local container registry.
       Required when using 'install push' or 'push' run tasks to push images to
       a local registry, or when installing from a local registry in offline mode.
+      The registry needs the projects chrislusf and library, plus grafana and prom
+      when monitoring is on. The password can't contain a single quote (').
     constraints:
     - type: basic_auth_credentials
       error_message: Select a secret of type basic_auth_credentials.
@@ -494,8 +563,13 @@ inputs:
     allow_update: false
     display_label: Registry URL:PORT
     description: |
-      URL of the local container registry (e.g. myregistry.lab:5000)
+      Host and port of the local container registry, such as myregistry.lab:5000 or
+      192.168.1.50:443, with no https://. The host is a lowercase name with a domain,
+      or an IPv4 address. Ignored by the save task.
     default: ""
+    constraints:
+      - pattern: '^$|^(([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}|((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)):[0-9]{1,5}$'
+        error_message: Leave blank, or enter host:port, such as myregistry.lab:5000 or 192.168.1.50:443 (no https://).
     display:
       group: env_config
       index: 8
@@ -509,9 +583,14 @@ inputs:
     description: |
       Select the operation to perform:
         install       - Install SeaweedFS from the internet
-        install push  - Install and push all container images to a local registry (requires registry_secret)
+        install push  - Push the container images to a local registry, then install from it
         save          - Download all artifacts and create an offline archive (swfs-save.tar.gz)
-        push          - Push saved container images to a local registry (requires registry_secret)
+        push          - Push the container images to a local registry and install nothing. They
+                        are pulled from the internet, or taken from a save archive extracted in
+                        the VM user's home directory.
+      install push and push need Registry URL and the Registry Authentication Secret.
+      The registry needs the projects chrislusf and library, plus grafana and prom
+      when monitoring is on.
     default: "install"
     constraints:
       - valid_values:
@@ -532,11 +611,12 @@ inputs:
     display_label: Script URL
     description: >
       URL of the SeaweedFS installer script (install-seaweedfs). The default is the
-      installer commit this release was tested with.
-    default: "https://github.com/Chubtoad5/seaweedfs-installer/raw/530e0b4d8e9b617fe4be05b3f1005b2447043259/install-seaweedfs"
+      installer release this version was tested with, v1.3.0. A GitHub release asset
+      is checked against that release's SHA256SUMS.
+    default: "https://github.com/Chubtoad5/seaweedfs-installer/releases/download/v1.3.0/install-seaweedfs"
     constraints:
-      - pattern: '^https?://\S+/install-seaweedfs$'
-        error_message: Enter the URL of install-seaweedfs.
+      - pattern: '^https?://[^\s'']+/install-seaweedfs$'
+        error_message: Enter the URL of install-seaweedfs (no spaces or single quotes).
     display:
       group: env_config
       index: 15

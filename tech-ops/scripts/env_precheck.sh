@@ -1,48 +1,67 @@
-#!/bin/bash
+#!/bin/sh
+# create for env_precheck: puts the SeaweedFS installer in the home directory.
+#
+# Airgapped mode downloads and extracts the offline package, which carries its
+# own install-seaweedfs. Otherwise it downloads SCRIPT_URL. A GitHub release
+# asset is checked against the SHA256SUMS of the same release, and a file that
+# doesn't match isn't kept.
+set -u
+# The fabric plugin leaves the settings in an env file on the VM. It holds a password.
+rm -f "$(dirname "$0")/env-$(basename "$0")"
 
-if [[ ${OFFLINE_MODE,,} == "true" ]]; then
-    ctx logger info "Offline mode detected."
-    if [[ -z $OFFLINE_BINARY_URL || -z $OFFLINE_BINARY_USER || -z $OFFLINE_BINARY_PASSWORD ]]; then
-        ctx logger info "OFFLINE_BINARY_URL, OFFLINE_BINARY_USER, or OFFLINE_BINARY_PASSWORD is missing."
-        exit 1
-    else
-        ctx logger info "Downloading offline binary..."
-        curl -skfLu "${OFFLINE_BINARY_USER}:${OFFLINE_BINARY_PASSWORD}" "${OFFLINE_BINARY_URL}" -o ~/$(basename $OFFLINE_BINARY_URL)
-        if [[ $? -ne 0 ]]; then 
-            ctx logger info "Failed to download offline binary."
-            exit 1
-        fi
-        ctx logger info "Extracting offline binary..."
-        tar -xzf ~/$(basename $OFFLINE_BINARY_URL) -C ~/
-        if [[ $? -ne 0 ]]; then 
-            ctx logger info "Failed to extract offline binary."
-            exit 1
-        fi
-        ctx logger info "Offline binary downloaded and extracted."
+log() { ctx logger info "$1"; }
+fail() { ctx logger error "$1"; exit 1; }
+
+offline_mode=$(printf '%s' "${OFFLINE_MODE:-false}" | tr '[:upper:]' '[:lower:]')
+
+if [ "$offline_mode" = "true" ]; then
+    log "Offline mode detected."
+    if [ -z "${OFFLINE_BINARY_URL:-}" ] || [ -z "${OFFLINE_BINARY_USER:-}" ] || [ -z "${OFFLINE_BINARY_PASSWORD:-}" ]; then
+        fail "OFFLINE_BINARY_URL, OFFLINE_BINARY_USER, or OFFLINE_BINARY_PASSWORD is missing."
     fi
-else
-    ctx logger info "Online mode detected."
-    if [[ -z $SCRIPT_URL ]]; then
-        ctx logger info "SCRIPT_URL is missing."
-        exit 1
-    fi
-    curl -skfL $SCRIPT_URL -o ~/$(basename $SCRIPT_URL)
-    if [[ $? -ne 0 ]]; then 
-        ctx logger info "Failed to download script."
-        exit 1
-    fi
-    chmod +x ~/$(basename $SCRIPT_URL)
-    ctx logger info "Install script downloaded and made executable."
+    archive="$HOME/$(basename "$OFFLINE_BINARY_URL")"
+    log "Downloading offline binary..."
+    curl -skfLu "${OFFLINE_BINARY_USER}:${OFFLINE_BINARY_PASSWORD}" "$OFFLINE_BINARY_URL" -o "$archive" \
+        || fail "Failed to download offline binary."
+    log "Extracting offline binary..."
+    tar -xzf "$archive" -C "$HOME" || fail "Failed to extract offline binary."
+    log "Offline binary downloaded and extracted."
+    exit 0
 fi
 
-# Install command parsing for registry
-ctx logger info "Assembling install command for run_arg: ${RUN_ARG}"
-INSTALL_CMD="${RUN_ARG}"
-# LOG_CMD is the same command for the log, without the registry password.
-LOG_CMD="${RUN_ARG}"
-if [[ -n "$REG_URL" && "$REG_URL" != "None" ]]; then
-    INSTALL_CMD="${INSTALL_CMD} -registry ${REG_URL} ${REG_USER} ${REG_PASS}"
-    LOG_CMD="${LOG_CMD} -registry ${REG_URL} ${REG_USER} ****"
+log "Online mode detected."
+[ -n "${SCRIPT_URL:-}" ] || fail "SCRIPT_URL is missing."
+
+script="$HOME/$(basename "$SCRIPT_URL")"
+download="${script}.download"
+rm -f "$download"
+curl -sfL --retry 3 "$SCRIPT_URL" -o "$download" || fail "Failed to download ${SCRIPT_URL}."
+
+case "$SCRIPT_URL" in
+    https://github.com/*/releases/download/*/install-seaweedfs)
+        sums_url="${SCRIPT_URL%/*}/SHA256SUMS"
+        if ! sums=$(curl -sfL --retry 3 "$sums_url"); then
+            rm -f "$download"
+            fail "Failed to download ${sums_url}."
+        fi
+        expected=$(printf '%s\n' "$sums" | awk '$2 == "install-seaweedfs" || $2 == "*install-seaweedfs" { print $1; exit }')
+        if [ -z "$expected" ]; then
+            rm -f "$download"
+            fail "${sums_url} has no entry for install-seaweedfs."
+        fi
+        actual=$(sha256sum "$download" | awk '{ print $1 }')
+        if [ "$actual" != "$expected" ]; then
+            rm -f "$download"
+            fail "install-seaweedfs doesn't match ${sums_url} (expected ${expected}, got ${actual})."
+        fi
+        log "install-seaweedfs matches the release's SHA256SUMS (${actual})."
+        ;;
+    *)
+        log "${SCRIPT_URL} isn't a GitHub release asset: no checksum to check."
+        ;;
+esac
+
+if ! { mv -f "$download" "$script" && chmod +x "$script"; }; then
+    fail "Failed to put the installer at ${script}."
 fi
-ctx logger info "parsed install command: ${LOG_CMD}"
-ctx instance runtime-properties capabilities.install_cmd "$INSTALL_CMD"
+log "Install script downloaded and made executable: ${SCRIPT_URL}"

@@ -11,6 +11,9 @@ set -u
 # Other workflows run stop too: a reinstall during an update ("Run automatic
 # reinstall" or a reinstall list) and Heal. In those SeaweedFS stays as it is.
 
+# The fabric plugin leaves the settings in an env file on the VM.
+rm -f "$(dirname "$0")/env-$(basename "$0")"
+
 workflow="$(ctx workflow-id 2>/dev/null || echo unknown)"
 
 case "${workflow}" in
