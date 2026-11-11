@@ -79,13 +79,14 @@ inputs:
     display_label: SeaweedFS Password
     description: |
       Password for SeaweedFS Admin UI, Filer, Master, SMB, and Grafana. The
-      installer writes it into its compose files, so these aren't allowed - a single
-      quote ('), $, a double quote ("), a backslash, #, a colon followed by a space
-      or at the end, a leading or trailing space, and control characters.
+      installer writes it into its compose files, and the SeaweedFS image's
+      entrypoint splits the Admin UI's at spaces and expands *, ? and [, so these
+      aren't allowed - a single quote ('), $, a double quote ("), a backslash, #, a
+      space, *, ?, [, a colon at the end, and control characters.
     default: "changeme"
     constraints:
-      - pattern: '^(?! )(?!.* $)(?!.*: )(?!.*:$)[^''$"\\#\x00-\x1f\x7f]+$'
-        error_message: Not allowed - single quotes ('), dollar signs ($), double quotes ("), backslashes, #, a colon followed by a space or at the end, a leading or trailing space, control characters.
+      - pattern: '^(?!.*:$)[^''$"\\#*?\[ \x00-\x1f\x7f]+$'
+        error_message: Not allowed - single quotes ('), dollar signs ($), double quotes ("), backslashes, #, spaces, *, ?, [, a colon at the end, control characters.
     display:
       group: seaweedfs_config
       index: 20

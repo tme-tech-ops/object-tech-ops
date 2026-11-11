@@ -63,7 +63,7 @@ Text inputs are validated in the form; each input's description says what it acc
 | SeaweedFS Container Image | `swfs_image` | `chrislusf/seaweedfs:4.30` | Container image for SeaweedFS. The default is the version the installer pins; `latest` pulls whatever is newest on the day of the install. |
 | Caddy Container Image | `caddy_image` | `caddy:2.11.3` | Container image for Caddy reverse proxy. Same as above. |
 | SeaweedFS Username | `swfs_user` | `admin` | Username for SeaweedFS Admin UI, Filer, Master, SMB, and Grafana; also the Linux user for the SMB share. |
-| SeaweedFS Password | `swfs_password` | `changeme` | Password for SeaweedFS Admin UI, Filer, Master, SMB, and Grafana. The installer writes it into its compose files, so it can't contain `'`, `$`, `"`, `\`, `#`, a colon followed by a space or at the end, a leading or trailing space, or control characters. |
+| SeaweedFS Password | `swfs_password` | `changeme` | Password for SeaweedFS Admin UI, Filer, Master, SMB, and Grafana. The installer writes it into its compose files, and the SeaweedFS image's entrypoint splits the Admin UI's at spaces and expands `*`, `?` and `[`, so it can't contain `'`, `$`, `"`, `\`, `#`, a space, `*`, `?`, `[`, a colon at the end, or control characters. |
 | Admin FQDN | `swfs_admin_fqdn` | `""` | FQDN for SeaweedFS Admin UI and Caddy landing page. Defaults to `admin.<HOST_FQDN>` if left empty. |
 | Admin Port | `swfs_admin_port` | `443` | TCP port for the SeaweedFS Admin UI / Caddy HTTPS endpoint. |
 | Master FQDN | `swfs_master_fqdn` | `""` | FQDN for SeaweedFS Master UI/API. Defaults to `master.<HOST_FQDN>` if left empty. |

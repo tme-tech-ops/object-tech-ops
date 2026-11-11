@@ -23,7 +23,10 @@ Updating a 1.2.0.0 deployment to it changes nothing on the VM.
   registry URL and images are validated, and none accepts a single quote.
 - Fixed: the SeaweedFS password goes into the installer's compose files, where
   `$`, `"`, `\`, `#` and a colon followed by a space or at the end change or
-  cut it. The form refuses those, along with a leading or trailing space.
+  cut it. The form refuses those. It also refuses a space, `*`, `?` and `[`:
+  the SeaweedFS image's entrypoint passes the Admin UI password on unquoted, so
+  it is split at spaces (the Admin UI then takes only the first word) and
+  globbed.
 - Fixed: the registry password travelled inside one command string, stored in
   `env_precheck`'s runtime properties (`install_cmd`), and a space or `*` in it
   split or expanded it. `install_app` now passes the registry user and
