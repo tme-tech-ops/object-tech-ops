@@ -94,7 +94,7 @@ labels:
       - seaweedfs-tech-ops
   version:
     values:
-      - "1.2.0.0"
+      - "1.2.1.0"
 
 blueprint_labels:
   env:

@@ -6,88 +6,47 @@ dsl_definitions:
     implementation: tech-ops/scripts/no_drift.py
     executor: central_deployment_agent
 
-# Environment Checks
-  env_precheck_inputs: &env_precheck_inputs
-    script_path: tech-ops/scripts/env_precheck.sh
-    process:
-      env:
-        OFFLINE_MODE: { get_input: offline_mode }
-        OFFLINE_BINARY_URL: { get_input: offline_binary_url }
-        OFFLINE_BINARY_USER: { get_input: offline_binary_access_user }
-        OFFLINE_BINARY_PASSWORD: { get_secret: [ { get_input: offline_binary_secret }, binary_image_access_token ] }
-        SCRIPT_URL: { get_input: script_url }
-        RUN_ARG: { concat: ['"', { jmespath: ["[0] || 'install'", [{ get_input: run_arg }]] }, '"'] }
-        REG_URL: { get_input: registry_url }
-        REG_USER: { get_input: registry_access_user }
-        REG_PASS: { concat: [ '"', { get_secret: [ { get_input: registry_secret }, password ] }, '"' ] }
-    fabric_env:
-      host_string: { get_environment_capability: vm_name_id }
-      user: { get_environment_capability: vm_user_name }
-      key: { get_secret: { get_environment_capability: vm_ssh_private_key } }
-      port: 22
-    hide_output: { get_input: hide_log_output }
-    proxy_settings:
-      auto_resolve: false
-      enable_socks5: false
-      target_id: { get_environment_capability: proxy_target_id }
-      target_ip: { get_environment_capability: vm_name_id }
+# The fabric plugin passes process.env as unquoted `export NAME=value`, so every
+# text value is wrapped in single quotes here, and the inputs refuse a single
+# quote. Numbers and booleans need no quotes. An optional text input cleared in
+# the form arrives as null, so those go through `[0] || ''`: the installer then
+# uses its default.
+  install_task: &install_task
+    concat: ["'", { jmespath: ["[0] || 'install'", [{ get_input: run_arg }]] }, "'"]
 
-  env_postcheck_inputs: &env_postcheck_inputs
-    script_path: tech-ops/scripts/env_postcheck.sh
-    process:
-      env:
-        SWFS_USER: { get_input: swfs_user }
-        SWFS_PASSWORD: { get_input: swfs_password }
-        UPLOAD_OFFLINE_PACKAGE: { get_input: upload_package }
-        UPLOAD_BASE_URL: { get_input: upload_binary_url }
-        UPLOAD_OFFLINE_PACKAGE_USER: { get_input: upload_binary_access_user }
-        UPLOAD_OFFLINE_PACKAGE_PASSWORD: { get_secret: [ { get_input: upload_binary_secret }, binary_image_access_token ] }
-    fabric_env:
-      host_string: { get_environment_capability: vm_name_id }
-      user: { get_environment_capability: vm_user_name }
-      key: { get_secret: { get_environment_capability: vm_ssh_private_key } }
-      port: 22
-    hide_output: { get_input: hide_log_output }
-    proxy_settings:
-      auto_resolve: false
-      enable_socks5: false
-      target_id: { get_environment_capability: proxy_target_id }
-      target_ip: { get_environment_capability: vm_name_id }
-
-# App deploy
-  shell_env: &shell_env
-    SWFS_USER: { get_input: swfs_user }
-    SWFS_PASSWORD: { get_input: swfs_password }
-    HOST_FQDN: { get_input: host_fqdn }
+  swfs_env: &swfs_env
+    SWFS_USER: { concat: ["'", { get_input: swfs_user }, "'"] }
+    SWFS_PASSWORD: { concat: ["'", { get_input: swfs_password }, "'"] }
+    HOST_FQDN: { concat: ["'", { jmespath: ["[0] || ''", [{ get_input: host_fqdn }]] }, "'"] }
     ENABLE_MONITORING: { get_input: enable_monitoring }
     ENABLE_SMB: { get_input: enable_smb }
     ENABLE_NFS: { get_input: enable_nfs }
     ENABLE_MQ: { get_input: enable_mq }
-    S3_BUCKET: { concat: ['"', { get_input: s3_bucket }, '"'] }
-    CLUSTER_NAME: { get_input: cluster_name }
+    S3_BUCKET: { concat: ["'", { jmespath: ["[0] || ''", [{ get_input: s3_bucket }]] }, "'"] }
+    CLUSTER_NAME: { concat: ["'", { jmespath: ["[0] || ''", [{ get_input: cluster_name }]] }, "'"] }
     DEBUG: { get_input: debug }
-    SWFS_IMAGE: { get_input: swfs_image }
-    CADDY_IMAGE: { get_input: caddy_image }
-    SWFS_ADMIN_FQDN: { get_input: swfs_admin_fqdn }
-    SWFS_MASTER_FQDN: { get_input: swfs_master_fqdn }
-    SWFS_FILER_FQDN: { get_input: swfs_filer_fqdn }
-    SWFS_S3_FQDN: { get_input: swfs_s3_fqdn }
+    SWFS_IMAGE: { concat: ["'", { get_input: swfs_image }, "'"] }
+    CADDY_IMAGE: { concat: ["'", { get_input: caddy_image }, "'"] }
+    SWFS_ADMIN_FQDN: { concat: ["'", { jmespath: ["[0] || ''", [{ get_input: swfs_admin_fqdn }]] }, "'"] }
+    SWFS_MASTER_FQDN: { concat: ["'", { jmespath: ["[0] || ''", [{ get_input: swfs_master_fqdn }]] }, "'"] }
+    SWFS_FILER_FQDN: { concat: ["'", { jmespath: ["[0] || ''", [{ get_input: swfs_filer_fqdn }]] }, "'"] }
+    SWFS_S3_FQDN: { concat: ["'", { jmespath: ["[0] || ''", [{ get_input: swfs_s3_fqdn }]] }, "'"] }
     SWFS_ADMIN_PORT: { get_input: swfs_admin_port }
     SWFS_MASTER_PORT: { get_input: swfs_master_port }
     SWFS_FILER_PORT: { get_input: swfs_filer_port }
     SWFS_S3_PORT: { get_input: swfs_s3_port }
     MQ_BROKER_PORT: { get_input: mq_broker_port }
-    DEFAULT_FILER_DIR_NAME: { get_input: default_filer_dir_name }
-    ARTIFACTS_TO_DOWNLOAD: { concat: ['"', { get_input: artifacts_to_download }, '"'] }
-    S3_USER: { get_input: s3_user }
-    LOKI_IMAGE: { get_input: loki_image }
-    GRAFANA_IMAGE: { get_input: grafana_image }
-    PROMETHEUS_EXT_IMAGE: { get_input: prometheus_ext_image }
-    GRAFANA_FQDN: { get_input: grafana_fqdn }
+    DEFAULT_FILER_DIR_NAME: { concat: ["'", { get_input: default_filer_dir_name }, "'"] }
+    ARTIFACTS_TO_DOWNLOAD: { concat: ["'", { jmespath: ["[0] || ''", [{ get_input: artifacts_to_download }]] }, "'"] }
+    S3_USER: { concat: ["'", { jmespath: ["[0] || ''", [{ get_input: s3_user }]] }, "'"] }
+    LOKI_IMAGE: { concat: ["'", { jmespath: ["[0] || ''", [{ get_input: loki_image }]] }, "'"] }
+    GRAFANA_IMAGE: { concat: ["'", { jmespath: ["[0] || ''", [{ get_input: grafana_image }]] }, "'"] }
+    PROMETHEUS_EXT_IMAGE: { concat: ["'", { jmespath: ["[0] || ''", [{ get_input: prometheus_ext_image }]] }, "'"] }
+    GRAFANA_FQDN: { concat: ["'", { jmespath: ["[0] || ''", [{ get_input: grafana_fqdn }]] }, "'"] }
     GRAFANA_PORT: { get_input: grafana_port }
     LOKI_PORT: { get_input: loki_port }
     PROMETHEUS_EXT_PORT: { get_input: prometheus_ext_port }
-    LOKI_BUCKET: { get_input: loki_bucket }
+    LOKI_BUCKET: { concat: ["'", { get_input: loki_bucket }, "'"] }
 
   # SSH through the Endpoint proxy to the VM this deployment is deployed on.
   vm_fabric_env: &vm_fabric_env
@@ -122,6 +81,8 @@ node_templates:
           implementation: fabric.fabric_plugin.tasks.run_script
           inputs: *get_vm_info_inputs
 
+  # A failed script exits 1 and isn't retried: a retry of install_app would
+  # re-run the installer for 15 minutes or more.
   env_precheck:
     type: dell.nodes.Root
     interfaces:
@@ -129,7 +90,18 @@ node_templates:
         create:
           implementation: fabric.fabric_plugin.tasks.run_script
           inputs:
-            <<: *env_precheck_inputs
+            script_path: tech-ops/scripts/env_precheck.sh
+            process:
+              env:
+                OFFLINE_MODE: { get_input: offline_mode }
+                OFFLINE_BINARY_URL: { concat: ["'", { get_input: offline_binary_url }, "'"] }
+                OFFLINE_BINARY_USER: { concat: ["'", { get_input: offline_binary_access_user }, "'"] }
+                OFFLINE_BINARY_PASSWORD: { concat: ["'", { get_secret: [ { get_input: offline_binary_secret }, binary_image_access_token ] }, "'"] }
+                SCRIPT_URL: { concat: ["'", { get_input: script_url }, "'"] }
+            fabric_env: *vm_fabric_env
+            hide_output: { get_input: hide_log_output }
+            proxy_settings: *vm_proxy_settings
+            non_recoverable_error_exit_codes: [1]
         check_drift: *no_drift
     relationships:
        - type: dell.relationships.depends_on
@@ -149,11 +121,16 @@ node_templates:
             script_path: tech-ops/scripts/swfs_install.sh
             process:
               env:
-                <<: *shell_env
-                INSTALL_CMD: { concat: ['"', { get_attribute: [ env_precheck, capabilities, install_cmd ] }, '"'] }
+                <<: *swfs_env
+                RUN_ARG: *install_task
+                OFFLINE_MODE: { get_input: offline_mode }
+                REG_URL: { concat: ["'", { jmespath: ["[0] || ''", [{ get_input: registry_url }]] }, "'"] }
+                REG_USER: { concat: ["'", { get_input: registry_access_user }, "'"] }
+                REG_PASS: { concat: ["'", { get_secret: [ { get_input: registry_secret }, password ] }, "'"] }
             hide_output: { get_input: hide_log_output }
             proxy_settings: *vm_proxy_settings
             fabric_env: *vm_fabric_env
+            non_recoverable_error_exit_codes: [1]
         check_drift: *no_drift
         stop:
           executor: central_deployment_agent
@@ -162,7 +139,7 @@ node_templates:
             script_path: tech-ops/scripts/swfs_stop.sh
             process:
               env:
-                RUN_ARG: { concat: ['"', { jmespath: ["[0] || 'install'", [{ get_input: run_arg }]] }, '"'] }
+                RUN_ARG: *install_task
             hide_output: { get_input: hide_log_output }
             proxy_settings: *vm_proxy_settings
             fabric_env: *vm_fabric_env
@@ -177,7 +154,26 @@ node_templates:
         create:
           implementation: fabric.fabric_plugin.tasks.run_script
           inputs:
-            <<: *env_postcheck_inputs
+            script_path: tech-ops/scripts/env_postcheck.sh
+            process:
+              env:
+                RUN_ARG: *install_task
+                SWFS_USER: { concat: ["'", { get_input: swfs_user }, "'"] }
+                SWFS_PASSWORD: { concat: ["'", { get_input: swfs_password }, "'"] }
+                SWFS_ADMIN_PORT: { get_input: swfs_admin_port }
+                SWFS_MASTER_PORT: { get_input: swfs_master_port }
+                SWFS_FILER_PORT: { get_input: swfs_filer_port }
+                SWFS_S3_PORT: { get_input: swfs_s3_port }
+                GRAFANA_PORT: { get_input: grafana_port }
+                DEFAULT_FILER_DIR_NAME: { concat: ["'", { get_input: default_filer_dir_name }, "'"] }
+                UPLOAD_OFFLINE_PACKAGE: { get_input: upload_package }
+                UPLOAD_BASE_URL: { concat: ["'", { get_input: upload_binary_url }, "'"] }
+                UPLOAD_OFFLINE_PACKAGE_USER: { concat: ["'", { get_input: upload_binary_access_user }, "'"] }
+                UPLOAD_OFFLINE_PACKAGE_PASSWORD: { concat: ["'", { get_secret: [ { get_input: upload_binary_secret }, binary_image_access_token ] }, "'"] }
+            fabric_env: *vm_fabric_env
+            hide_output: { get_input: hide_log_output }
+            proxy_settings: *vm_proxy_settings
+            non_recoverable_error_exit_codes: [1]
         check_drift: *no_drift
     relationships:
        - type: dell.relationships.depends_on

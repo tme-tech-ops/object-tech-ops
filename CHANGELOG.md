@@ -3,6 +3,64 @@
 All notable changes to this blueprint are recorded here. The version is also
 the catalog revision to upload the blueprint as.
 
+## 1.2.1.0 - unreleased
+
+Moves to seaweedfs-installer `v1.3.0` and fixes what was wrong in 1.2.0.0.
+Updating a 1.2.0.0 deployment to it changes nothing on the VM.
+
+- Changed: `script_url` defaults to the installer's `v1.3.0` release asset
+  instead of commit `530e0b4`. `env_precheck` checks a GitHub release asset
+  against that release's `SHA256SUMS`, keeps a file that doesn't match off the
+  VM, and no longer downloads with `curl -k`. With `v1.3.0`, a re-run keeps the
+  S3 keys, doesn't restart Caddy, and leaves Samba and NFS running when nothing
+  changed. The installer exits 0 only once Caddy serves, records its version
+  in `.install-state`, keeps its compose files private, and pins the helper
+  scripts it downloads to releases.
+- Fixed: text values reached the scripts through an unquoted shell `export`,
+  so `$`, backticks, `\` and spaces in a password or other value were changed or
+  broke the command. They are now single-quoted. The SeaweedFS password, user
+  names, host names, Filer directory, buckets, cluster name, artifact URLs,
+  registry URL and images are validated, and none accepts a single quote.
+- Fixed: the SeaweedFS password goes into the installer's compose files, where
+  `$`, `"`, `\`, `#` and a colon followed by a space or at the end change or
+  cut it. The form refuses those. It also refuses a space, `*`, `?` and `[`:
+  the SeaweedFS image's entrypoint passes the Admin UI password on unquoted, so
+  it is split at spaces (the Admin UI then takes only the first word) and
+  globbed.
+- Fixed: the registry password travelled inside one command string, stored in
+  `env_precheck`'s runtime properties (`install_cmd`), and a space or `*` in it
+  split or expanded it. `install_app` now passes the registry user and
+  password to the installer as separate, quoted arguments, and nothing stores
+  them.
+- Fixed: with Registry URL set, a `save` deployment failed, because the
+  installer refuses `-registry` with `save`. `-registry` now goes only to
+  `install`, `install push` and `push`, and `install push` or `push` without a
+  registry stops with a reason.
+- Fixed: the scripts left their settings, passwords included, in env files on
+  the VM. Each script now deletes its env file first.
+- Fixed: a failed check or install was retried for 15 minutes or more,
+  re-running the installer each time. They now fail at once (exit code 1).
+- Fixed: `env_postcheck` only checked that `seaweed-mini` ran, then published
+  the inputs' user and password, with default ports in the URLs and no Filer
+  directory. It now checks that Caddy answers on the Filer's
+  `/<dir>/`, checks the credentials there, and publishes only credentials
+  Caddy accepted. The URLs carry the deployment's ports, and the Filer URL ends
+  in its directory.
+- Fixed: a cleared optional text input could reach the installer as `None`;
+  it now arrives empty, and the installer uses its default.
+- Changed: online `install`, `install push` and `save` set
+  `SWFS_FORCE_ONLINE=true`, so a package left in the home directory by an
+  earlier `save` deployment can't switch them to the offline package.
+- Changed: image defaults are `chrislusf/seaweedfs:4.30` and `caddy:2.11.3`,
+  the versions the installer pins, instead of `latest`, which is still allowed.
+- Fixed: texts. The README listed `vm_deployment_id` and SSH key inputs that
+  don't exist, and said a re-run always issues new S3 keys. The `push` task
+  doesn't push only saved images: online it pulls them from the internet. The
+  registry projects it needs are now listed.
+- Lint: the remaining findings are the plain-text `swfs_password` input, as in
+  1.2.0.0. The linter no longer flags its uses in `definitions.yaml`, because
+  they are wrapped in quotes; the input itself is still flagged.
+
 ## 1.2.0.0 - 2026-10-31
 
 Safe deployment updates (Day-2). Works on a VM from edge-cloudinit-linux
