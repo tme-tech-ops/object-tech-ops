@@ -3,7 +3,7 @@
 All notable changes to this blueprint are recorded here. The version is also
 the catalog revision to upload the blueprint as.
 
-## 1.2.1.0 - unreleased
+## 1.2.1.0 - 2026-11-11
 
 Moves to seaweedfs-installer `v1.3.0` and fixes what was wrong in 1.2.0.0.
 Updating a 1.2.0.0 deployment to it changes nothing on the VM.
